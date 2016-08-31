@@ -1,9 +1,13 @@
 ﻿Import-Module ActiveDirectory
-$Serverlist = Get-ADComputer -Filter {(Operatingsystem -Like "Windows Server*") -And (Enabled -eq "True")}
+$serverlistlocation = "C:\Scripting\Logs\serverlist.txt"
+$Serverlist = Get-ADComputer -Filter {(Operatingsystem -Like "Windows Server*") -And (Enabled -eq "True")} | foreach { $_.Name } | Out-File $serverlistlocation
+
 function DriveSpace-StandardServer {
 
 param( [string] $strComputer) 
 
+$dbservername = "10.159.100.104"
+$databasename = "ThingsGoingOnTest1"
 
 
 # Does the server responds to a ping (otherwise the WMI queries will fail)
@@ -35,34 +39,22 @@ if ($result.protocoladdress) {
        [int]$Warning_State = 0
        [int]$Error_State = 0
        }
-       $timestamp = Get-Date #-format dd-MM-yyyy
-       $sqlCommand = New-Object System.Data.SqlClient.SqlCommand
-       $sqlCommand.Connection = $sqlConnection
-       $Insert_stmt= "INSERT INTO Disk_space(SpaceFree,DriveLetter,Warning_State,Error_State,Servername,timestamp)
-       VALUES ('$($PercentFree)','$($Drive)','$($Warning_State)','$($Error_State)','$($strComputer)','$($timestamp)')"
-       $sqlCommand.CommandText = $insert_stmt
-       $DBServer = "PC01390"
-       $DBName = "ThingsGoingOnTest1"
-       $sqlConnection = New-Object System.Data.SqlClient.SqlConnection
-       $sqlConnection.ConnectionString = "Server=$DBServer;Database=$DBName;Integrated Security=True;"
-       $sqlConnection.Open()
-       $sqlcommand.ExecuteNonQuery()
-# Quit if the SQL connection didn't open properly.
-       if ($sqlConnection.State -ne [Data.ConnectionState]::Open) 
-       {
-        "Connection to DB is not open."
-       }
-       
+       $timestamp = Get-Date
 
-# Close the connection.
-      if ($sqlConnection.State -eq [Data.ConnectionState]::Open) 
-      {
-       $sqlConnection.Close()
-       }
-
+    $SqlConnection = New-Object System.Data.SqlClient.SQLConnection
+    $SqlConnection.ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
+    $ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
+    $insertstatement = "INSERT INTO Disk_space(SpaceFree,DriveLetter,Warning_State,Error_State,Servername,timestamp)
+                        VALUES ('$($PercentFree)','$($Drive)','$($Warning_State)','$($Error_State)','$($strComputer)','$($timestamp)')"
+    $SqlConnection.Open()
+    $SqlCmd = New-Object "System.Data.SqlClient.SqlCommand" ($insertstatement,$SqlConnection)
+    $SqlCmd.ExecuteNonQuery()
+    $SqlConnection.Close()
+    Start-Sleep 2
 
     }
+    foreach ($computer in cat $serverlistlocation) {DriveSpace-StandardServer "$computer"}
 }
 }
 
-DriveSpace-StandardServer "PC01390"
+foreach ($computer in cat $serverlistlocation) {DriveSpace-StandardServer "$computer"}
