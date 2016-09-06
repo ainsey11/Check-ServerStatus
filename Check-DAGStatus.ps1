@@ -1,8 +1,5 @@
 ﻿Add-PSSnapin Microsoft.Exchange.Management.PowerShell.SnapIn
 
-$vars = 'C:\Scripting\Grafana\Powershell\vars.ps1'
-Invoke-Expression -Command ($vars)
-
 Function Get-ExchangeServerADSite ([String] $excServer)
 {
 	# We could use WMI to check for the domain, but I think this method is better
