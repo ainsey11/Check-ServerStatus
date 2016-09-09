@@ -10,8 +10,8 @@ function DriveSpace-StandardServer {
 
 param( [string] $strComputer) 
 
-$dbservername = "<Enter DB Server Name Here"
-$databasename = "<Enter DB Name Here>"
+$dbservername = "PC01390"
+$databasename = "ThingsGoingOnTest1"
 
 
 # Does the server responds to a ping (otherwise the WMI queries will fail)

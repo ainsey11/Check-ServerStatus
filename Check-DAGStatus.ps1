@@ -1,4 +1,8 @@
 ﻿Add-PSSnapin Microsoft.Exchange.Management.PowerShell.SnapIn
+$dbservername = "PC01390"
+$databasename = "ThingsGoingOnTest1"
+$timestamp = Get-Date
+
 
 Function Get-ExchangeServerADSite ([String] $excServer)
 {
@@ -57,9 +61,46 @@ Get-MailboxDatabase | Where {$_.Recovery -eq $False} | Sort Name | Get-MailboxDa
 }
 
 If ($bolFailover) {
+    [int]$health = 0
     #do magical shit here
+    #MAGICAAAL SQL VOOODDOOOOO YO
+    $SqlConnection = New-Object System.Data.SqlClient.SQLConnection
+
+    #Connection String
+    $SqlConnection.ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
+    $ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
+
+    #Insert Statement to be pushed into the database
+    $insertstatement = "INSERT INTO exchange_status(healthy,timestamp)
+                        VALUES ('$($health)','$($timestamp)')"
+
+    # Opens Connection, Pushes the data then closes the connection to keep it tidy
+    $SqlConnection.Open()
+    $SqlCmd = New-Object "System.Data.SqlClient.SqlCommand" ($insertstatement,$SqlConnection)
+    $SqlCmd.ExecuteNonQuery()
+    $SqlConnection.Close()
+    # Have a little nap sql, you worked hard today.
+    Start-Sleep 2
 	    }
 else {
+    [int]$health = 1
     #idk, log a value saying it's all gravy? sounds like a plan batman
+    #MAGICAAAL SQL VOOODDOOOOO YO
+      $SqlConnection = New-Object System.Data.SqlClient.SQLConnection
 
+    #Connection String
+    $SqlConnection.ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
+    $ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
+
+    #Insert Statement to be pushed into the database
+    $insertstatement = "INSERT INTO exchange_status(healthy,timestamp)
+                        VALUES ('$($health)','$($timestamp)')"
+
+    # Opens Connection, Pushes the data then closes the connection to keep it tidy
+    $SqlConnection.Open()
+    $SqlCmd = New-Object "System.Data.SqlClient.SqlCommand" ($insertstatement,$SqlConnection)
+    $SqlCmd.ExecuteNonQuery()
+    $SqlConnection.Close()
+    # Have a little nap sql, you worked hard today.
+    Start-Sleep 2
 }
