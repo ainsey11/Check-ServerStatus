@@ -104,6 +104,4 @@ Function Get-PendingUpdate {
 
 Foreach ($server in $readServerlist){
 (Get-PendingUpdate -Computername $server).Count
-
-
 }
