@@ -13,9 +13,10 @@ foreach ($Folder in $Folders){
 
     #MAGICAAAL SQL VOOODDOOOOO YO
     $SqlConnection = New-Object System.Data.SqlClient.SQLConnection
+
     #Connection String
     $SqlConnection.ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
-    $ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
+    
     #Insert Statement to be pushed into the database
     $insertstatement = "INSERT INTO permissions(Folderpath,Identityreference,AccessControlType,Isinherited,Inheritanceflags,PropagationFlags,timestamp)
                     VALUES ('$($folder.FullName)','$($ACL.IdentityReference)','$($ACL.AccessControlType)','$($ACL.IsInherited)','$($ACL.InheritanceFlags)','$($ACL.PropagationFlags)','$($timestamp)')"
