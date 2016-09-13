@@ -25,7 +25,10 @@ if ($result.protocoladdress) {
 
     # For each disk calculate the free space
     foreach ($disk in $colDisks) {
-       if ($disk.size -gt 0) {$PercentFree = [Math]::round((($disk.freespace/$disk.size) * 100))}
+       if ($disk.size -gt 0) {$PercentFree = [Math]::round((($disk.freespace/$disk.size) * 100)) 
+       $totalsize = [math]::truncate($disk.Size / 1GB)
+       $freesize = [math]::truncate($disk.FreeSpace / 1GB)
+       }
        else {$PercentFree = 0}
 
 		$Drive = $disk.DeviceID
@@ -50,10 +53,10 @@ if ($result.protocoladdress) {
     $SqlConnection = New-Object System.Data.SqlClient.SQLConnection
     #Connection String
     $SqlConnection.ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
-    $ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
+  #  $ConnectionString = "Server=$dbservername;Database=$databasename;Integrated Security=SSPI;"
     #Insert Statement to be pushed into the database
-    $insertstatement = "INSERT INTO Disk_space(SpaceFree,DriveLetter,Warning_State,Error_State,Servername,timestamp)
-                        VALUES ('$($PercentFree)','$($Drive)','$($Warning_State)','$($Error_State)','$($strComputer)','$($timestamp)')"
+    $insertstatement = "INSERT INTO Disk_space(SpaceFree,DriveLetter,Warning_State,Error_State,Servername,timestamp,totalsize,freesize)
+                        VALUES ('$($PercentFree)','$($Drive)','$($Warning_State)','$($Error_State)','$($strComputer)','$($timestamp)','$($totalsize)','$($freesize)')"
     # Opens Connection, Pushes the data then closes the connection to keep it tidy
     $SqlConnection.Open()
     $SqlCmd = New-Object "System.Data.SqlClient.SqlCommand" ($insertstatement,$SqlConnection)
