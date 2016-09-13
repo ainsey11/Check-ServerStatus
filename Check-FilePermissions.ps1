@@ -3,9 +3,9 @@
 $dbservername = "PC01390" #yeah, you got it kiddo?
 $databasename = "FilePermissions" #Kinda obvious what this one does
 $timestamp = Get-Date #For the SQL timestamp column, handy when doing select statements
-$RootPath = "D:\Documents" #The folder you want to scan for permissions. Note that it only does the top 4 folders, if you want more, add another wildcard on line 20
+$RootPath = "D:\" #The folder you want to scan for permissions. Note that it only does the top 4 folders, if you want more, add another wildcard on line 20
 
-$Folders = dir $RootPath\*\*\*\ | where {$_.psiscontainer -eq $true} #Creates list of folders to get ACL's for
+$Folders = dir $RootPath\*\*\*\*\*\ | where {$_.psiscontainer -eq $true} #Creates list of folders to get ACL's for
 
 foreach ($Folder in $Folders){
     $ACLs = get-acl $Folder.fullname | ForEach-Object { $_.Access  }
@@ -25,6 +25,4 @@ foreach ($Folder in $Folders){
     $SqlCmd = New-Object "System.Data.SqlClient.SqlCommand" ($insertstatement,$SqlConnection)
     $SqlCmd.ExecuteNonQuery()
     $SqlConnection.Close()
-    # Have a little nap sql, you worked hard today.
-    Start-Sleep 1
     }}
